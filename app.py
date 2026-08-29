@@ -523,10 +523,10 @@ query_input = st.text_input(
     key="main_query_box"
 )
 
-col_run, col_clear = st.columns([4, 1])
-with col_run:
+# Action Buttons (Centered & Stacked)
+_, col_center, _ = st.columns([1, 2, 1])
+with col_center:
     run_btn = st.button("🚀 Run DiffAgent Comparison", type="primary", use_container_width=True)
-with col_clear:
     st.button("🔄 Reset", use_container_width=True, on_click=reset_session)
 
 
