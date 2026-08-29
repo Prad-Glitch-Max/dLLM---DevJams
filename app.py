@@ -487,31 +487,32 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+# Preset Query Callback
+def select_preset(preset_text: str):
+    st.session_state["main_query_box"] = preset_text
+    st.session_state["last_query"] = preset_text
+
+if "main_query_box" not in st.session_state:
+    st.session_state["main_query_box"] = "What is the weather in Chennai?"
+
 # Preset Query Suggestions
 st.markdown("##### 💡 **Quick Try Presets**")
 preset_cols = st.columns(5)
-sample_query = None
 
 with preset_cols[0]:
-    if st.button("🌤️ Weather Chennai", use_container_width=True):
-        sample_query = "What is the weather in Chennai?"
+    st.button("🌤️ Weather Chennai", use_container_width=True, on_click=select_preset, args=("What is the weather in Chennai?",))
 with preset_cols[1]:
-    if st.button("☂️ Umbrella Chennai", use_container_width=True):
-        sample_query = "Should I carry an umbrella in Chennai today?"
+    st.button("☂️ Umbrella Chennai", use_container_width=True, on_click=select_preset, args=("Should I carry an umbrella in Chennai today?",))
 with preset_cols[2]:
-    if st.button("📚 Library Hours", use_container_width=True):
-        sample_query = "What are the library opening and closing hours?"
+    st.button("📚 Library Hours", use_container_width=True, on_click=select_preset, args=("What are the library opening and closing hours?",))
 with preset_cols[3]:
-    if st.button("🧮 15% of 4,500", use_container_width=True):
-        sample_query = "Calculate 15 percent of 4500"
+    st.button("🧮 15% of 4,500", use_container_width=True, on_click=select_preset, args=("Calculate 15 percent of 4500",))
 with preset_cols[4]:
-    if st.button("🏥 Medical Emergency", use_container_width=True):
-        sample_query = "How do I access medical emergency services on campus?"
+    st.button("🏥 Medical Emergency", use_container_width=True, on_click=select_preset, args=("How do I access medical emergency services on campus?",))
 
 # Query Input Field
 query_input = st.text_input(
     "Ask DiffAgent anything (Weather, Math Calculation, Campus Knowledge RAG):",
-    value=sample_query if sample_query else (st.session_state.get("last_query", "What is the weather in Chennai?")),
     placeholder="e.g. Should I carry an umbrella in Chennai today?, What are the library opening hours?, Calculate 125 * 48",
     key="main_query_box"
 )
@@ -523,6 +524,7 @@ with col_clear:
     if st.button("🔄 Reset", use_container_width=True):
         st.session_state.pop("gated", None)
         st.session_state.pop("baseline", None)
+        st.session_state["main_query_box"] = "What is the weather in Chennai?"
         st.rerun()
 
 
@@ -538,6 +540,7 @@ if run_btn and query_input:
 
     st.session_state["baseline"] = baseline_res
     st.session_state["gated"] = gated_res
+    st.rerun()
 
 
 # ============================================================
