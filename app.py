@@ -487,10 +487,16 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Preset Query Callback
+# Preset & Reset Callbacks
 def select_preset(preset_text: str):
     st.session_state["main_query_box"] = preset_text
     st.session_state["last_query"] = preset_text
+
+def reset_session():
+    st.session_state.pop("gated", None)
+    st.session_state.pop("baseline", None)
+    st.session_state.pop("last_query", None)
+    st.session_state["main_query_box"] = "What is the weather in Chennai?"
 
 if "main_query_box" not in st.session_state:
     st.session_state["main_query_box"] = "What is the weather in Chennai?"
@@ -521,11 +527,7 @@ col_run, col_clear = st.columns([4, 1])
 with col_run:
     run_btn = st.button("🚀 Run DiffAgent Comparison", type="primary", use_container_width=True)
 with col_clear:
-    if st.button("🔄 Reset", use_container_width=True):
-        st.session_state.pop("gated", None)
-        st.session_state.pop("baseline", None)
-        st.session_state["main_query_box"] = "What is the weather in Chennai?"
-        st.rerun()
+    st.button("🔄 Reset", use_container_width=True, on_click=reset_session)
 
 
 # ============================================================
