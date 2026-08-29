@@ -83,25 +83,58 @@ class Retriever:
         similarities = cosine_similarity(query_vector, self.embeddings)[0]
 
         q_lower = query.lower()
+
+        # Specific sub-topic intent detection
+        has_sports = any(w in q_lower for w in ["sport", "sports", "gym", "gymnasium", "badminton", "cricket", "football", "tennis"])
+        has_medical = any(w in q_lower for w in ["medical", "doctor", "health", "ambulance", "emergency healthcare", "clinic"])
+        has_wifi = any(w in q_lower for w in ["wifi", "wi-fi", "internet", "helpdesk", "portal", "login", "password"])
+        has_bus = any(w in q_lower for w in ["bus", "buses", "shuttle", "transport", "transportation"])
+        has_timing = any(w in q_lower for w in ["timing", "timings", "opening hours", "closing hours", "open time", "close time"])
+        has_curfew = any(w in q_lower for w in ["curfew", "gate timing", "gates close", "gate open", "night out"])
+        has_attendance = any(w in q_lower for w in ["attendance", "75%"])
+        has_exam = any(w in q_lower for w in ["cat", "fat", "exam", "exams", "examination"])
+        has_broad_services = any(w in q_lower for w in ["student services", "campus services", "what services", "services on campus", "services available"]) and not (has_sports or has_medical or has_wifi or has_bus)
+        has_broad_hostel = any(w in q_lower for w in ["hostel facilities", "hostel amenities", "hostel rooms", "all hostel"]) and not has_curfew
+
         # Apply domain-level scoring adjustments
         for idx, doc in enumerate(self.documents):
             src = doc["source"]
             txt = doc["text"]
             boost = 1.0
 
-            # Domain keyword match
+            # Domain file bias
             if "hostel" in q_lower and src == "hostel.txt":
-                boost += 0.35
+                boost += 0.30
             if "library" in q_lower and src == "library.txt":
-                boost += 0.35
-            if any(w in q_lower for w in ["campus service", "student service", "services available", "services on campus", "medical", "bus", "sports", "wifi"]) and src == "campus_services.txt":
-                boost += 0.35
+                boost += 0.30
+            if any(w in q_lower for w in ["campus service", "student service", "medical", "bus", "sports", "wifi"]) and src == "campus_services.txt":
+                boost += 0.30
             if any(w in q_lower for w in ["academic", "attendance", "cat", "fat", "grade", "gpa", "exam"]) and src == "academic.txt":
-                boost += 0.35
-            
-            # Overview boost for broad queries
-            if any(w in q_lower for w in ["overview", "what are the", "facilities available", "services available", "what student services", "what services"]) and "0. Overview" in txt:
-                boost += 0.25
+                boost += 0.30
+
+            # Targeted sub-topic section boosts
+            if has_sports and "Sports & Recreational Facilities" in txt:
+                boost += 0.70
+            if has_medical and "Medical Centre" in txt:
+                boost += 0.70
+            if has_wifi and "Wi-Fi & IT Support" in txt:
+                boost += 0.70
+            if has_bus and "Transportation & Campus Shuttle" in txt:
+                boost += 0.70
+            if has_timing and src == "library.txt" and "Library Timings & Opening Hours" in txt:
+                boost += 0.60
+            if has_curfew and src == "hostel.txt" and "Hostel Timings & Curfew Rules" in txt:
+                boost += 0.60
+            if has_attendance and "Attendance Requirements" in txt:
+                boost += 0.70
+            if has_exam and "Examinations (CAT & FAT)" in txt:
+                boost += 0.70
+
+            # Broad overview boost ONLY when general overview requested
+            if has_broad_services and src == "campus_services.txt" and "0. Overview" in txt:
+                boost += 0.40
+            if has_broad_hostel and src == "hostel.txt" and "0. Overview" in txt:
+                boost += 0.40
 
             similarities[idx] *= boost
 

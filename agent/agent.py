@@ -209,40 +209,30 @@ class DiffAgent:
                     else:
                         formatted_sections.append(f"**{header}**")
             else:
-                seen_headers = set()
-                for doc in results:
-                    src = doc.get("source", "docs")
-                    if src not in citations:
-                        citations.append(src)
-                    raw_text = doc.get("text", "")
-                    clean_text = re.sub(r"^\[.*?\]\s*", "", raw_text).strip()
-                    lines = clean_text.split("\n")
-                    header = re.sub(r"^\d+\.\s*", "", lines[0].strip())
+                # For single-intent queries, format precisely the top matching section
+                top_doc = results[0]
+                src = top_doc.get("source", "docs")
+                citations = [src]
+                raw_text = top_doc.get("text", "")
+                clean_text = re.sub(r"^\[.*?\]\s*", "", raw_text).strip()
+                lines = clean_text.split("\n")
+                header = re.sub(r"^\d+\.\s*", "", lines[0].strip())
 
-                    if header in seen_headers:
-                        continue
-                    seen_headers.add(header)
+                body_lines = [l.strip() for l in lines[1:] if l.strip()]
+                bullets = []
+                for l in body_lines:
+                    cleaned = re.sub(r"^[-*•]\s*", "", l)
+                    bullets.append(f"• {cleaned}")
+                formatted_body = "\n".join(bullets)
 
-                    body_lines = [l.strip() for l in lines[1:] if l.strip()]
-                    bullets = []
-                    for l in body_lines:
-                        cleaned = re.sub(r"^[-*•]\s*", "", l)
-                        bullets.append(f"• {cleaned}")
-                    formatted_body = "\n".join(bullets)
-
-                    if bullets:
-                        formatted_sections.append(f"**{header}:**\n{formatted_body}")
-                    else:
-                        formatted_sections.append(f"**{header}**")
-
-                    if "Overview" in header:
-                        break
-                    if len(formatted_sections) >= 2:
-                        break
+                if bullets:
+                    formatted_sections.append(f"**{header}:**\n{formatted_body}")
+                else:
+                    formatted_sections.append(f"**{header}**")
 
             body_text = "\n\n".join(formatted_sections)
             cite_str = ", ".join([f"`{c}`" for c in citations])
-            return f"{body_text}\n\n*(Sources: {cite_str})*"
+            return f"{body_text}\n\n*(Source: {cite_str})*" if len(citations) == 1 else f"{body_text}\n\n*(Sources: {cite_str})*"
 
         return f"Tool `{tool}` output: {result_data}"
 
