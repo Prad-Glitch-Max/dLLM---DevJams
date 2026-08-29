@@ -25,127 +25,78 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-import base64
-from pathlib import Path
-
-# Load background image
-BG_IMAGE_PATH = Path(__file__).resolve().parent / "assets" / "background.png"
-bg_image_css = ""
-if BG_IMAGE_PATH.exists():
-    try:
-        with open(BG_IMAGE_PATH, "rb") as f:
-            b64_bg = base64.b64encode(f.read()).decode("utf-8")
-        bg_image_css = f"""
-        .stApp {{
-            background: linear-gradient(180deg, rgba(10, 14, 23, 0.88) 0%, rgba(10, 14, 23, 0.96) 100%),
-                        url('data:image/png;base64,{b64_bg}') no-repeat center top fixed !important;
-            background-size: cover !important;
-        }}
-        """
-    except Exception:
-        pass
-
-
-# Custom CSS for modern dark-mode aesthetic with background
-st.markdown(f"""
+# Custom CSS for modern dark-mode aesthetic
+st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
     
-    {bg_image_css}
-    
-    html, body, [class*="css"] {{
+    html, body, [class*="css"] {
         font-family: 'Outfit', sans-serif;
-    }}
+    }
     
-    code, pre {{
+    code, pre {
         font-family: 'JetBrains Mono', monospace !important;
-    }}
+    }
     
-    .main-header {{
-        background: linear-gradient(135deg, rgba(14, 165, 233, 0.18) 0%, rgba(245, 158, 11, 0.12) 100%);
-        border: 1px solid rgba(255, 255, 255, 0.12);
+    .main-header {
+        background: linear-gradient(135deg, rgba(14, 165, 233, 0.15) 0%, rgba(99, 102, 241, 0.15) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 16px;
         padding: 24px 30px;
         margin-bottom: 25px;
-        backdrop-filter: blur(14px);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-    }}
-    
-    .response-card {{
-        background: rgba(15, 23, 42, 0.85);
-        border: 1px solid rgba(56, 189, 248, 0.35);
-        border-left: 5px solid #38bdf8;
-        border-radius: 14px;
-        padding: 20px 24px;
-        backdrop-filter: blur(12px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-        margin-bottom: 20px;
-    }}
-    
-    .metric-card {{
-        background: rgba(17, 24, 39, 0.82);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 14px;
-        padding: 18px 20px;
         backdrop-filter: blur(10px);
-        transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-    }}
-    .metric-card:hover {{
+    }
+    
+    .metric-card {
+        background: rgba(22, 27, 34, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 16px 20px;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .metric-card:hover {
         border-color: #38bdf8;
         transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(56, 189, 248, 0.18);
-    }}
+    }
     
-    .badge-early {{
+    .badge-early {
         background: linear-gradient(90deg, #0284c7, #2563eb);
         color: white;
-        padding: 5px 14px;
+        padding: 4px 12px;
         border-radius: 9999px;
         font-size: 0.85rem;
         font-weight: 600;
         display: inline-block;
-        box-shadow: 0 0 14px rgba(37, 99, 235, 0.5);
-    }}
+        box-shadow: 0 0 12px rgba(37, 99, 235, 0.4);
+    }
     
-    .badge-baseline {{
-        background: rgba(100, 116, 139, 0.25);
+    .badge-baseline {
+        background: rgba(100, 116, 139, 0.2);
         color: #94a3b8;
         border: 1px solid #475569;
-        padding: 5px 14px;
+        padding: 4px 12px;
         border-radius: 9999px;
         font-size: 0.85rem;
         font-weight: 600;
         display: inline-block;
-    }}
+    }
     
-    .tool-chip {{
+    .tool-chip {
         display: inline-block;
-        background: rgba(56, 189, 248, 0.12);
-        border: 1px solid rgba(56, 189, 248, 0.35);
+        background: rgba(56, 189, 248, 0.1);
+        border: 1px solid rgba(56, 189, 248, 0.3);
         color: #38bdf8;
-        padding: 3px 12px;
-        border-radius: 8px;
-        font-size: 0.85rem;
+        padding: 2px 10px;
+        border-radius: 6px;
+        font-size: 0.8rem;
         font-family: 'JetBrains Mono', monospace;
-    }}
+    }
 
-    .stButton>button {{
+    .stButton>button {
         border-radius: 10px;
         font-weight: 600;
         transition: all 0.2s ease;
-    }}
-    
-    /* Sidebar collapse toggle button styling */
-    [data-testid="stSidebarCollapseButton"] {{
-        background: rgba(56, 189, 248, 0.15) !important;
-        border: 1px solid rgba(56, 189, 248, 0.3) !important;
-        border-radius: 8px !important;
-        color: #38bdf8 !important;
-    }}
-    [data-testid="stSidebarCollapseButton"]:hover {{
-        background: rgba(56, 189, 248, 0.3) !important;
-        border-color: #38bdf8 !important;
-    }}
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -520,18 +471,17 @@ with st.sidebar.expander("📊 Extra Info & Killer Visualizations", expanded=Tru
 
 st.markdown("""
 <div class="main-header">
-    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+    <div style="display: flex; align-items: center; justify-content: space-between;">
         <div>
-            <h1 style="margin: 0; font-size: 2.3rem; font-weight: 800; background: linear-gradient(90deg, #38bdf8, #f59e0b, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            <h1 style="margin: 0; font-size: 2.2rem; font-weight: 800; background: linear-gradient(90deg, #0284c7, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                 ⚡ DiffAgent
             </h1>
-            <p style="margin: 6px 0 0 0; color: #94a3b8; font-size: 1.05rem; font-weight: 500;">
-                Confidence-Gated Early Commitment & Grounded RAG for Discrete Diffusion Language Models (dLLMs)
+            <p style="margin: 6px 0 0 0; color: #475569; font-size: 1.05rem; font-weight: 500;">
+                Confidence-Gated Early Commitment for Diffusion Language Models (dLLMs)
             </p>
         </div>
-        <div style="display: flex; align-items: center; gap: 10px;">
+        <div>
             <span class="badge-early">⚡ Research Demo</span>
-            <span class="badge-baseline">🟢 Live Engine Active</span>
         </div>
     </div>
 </div>
@@ -613,13 +563,7 @@ if "gated" in st.session_state:
     # 1. FINAL GROUNDED RESPONSE
     # --------------------------------------------------------
     st.markdown("### 💬 **Final Synthesized Response**")
-    resp_text = gated.get("response", "No response generated.")
-    st.markdown(f"""
-    <div class="response-card">
-        <div style="font-size: 1.05rem; line-height: 1.6; color: #f1f5f9;">
-    """, unsafe_allow_html=True)
-    st.markdown(resp_text)
-    st.markdown("</div></div>", unsafe_allow_html=True)
+    st.info(gated.get("response", "No response generated."))
 
     # --------------------------------------------------------
     # 2. LIVE TOOL EXECUTION RESULT
