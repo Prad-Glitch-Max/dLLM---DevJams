@@ -87,9 +87,35 @@ Clicking any preset automatically populates the input query box:
 
 ---
 
-## 4. Agent Decision & Early Gate Status
+## 4. Final Synthesized Response
 
-Immediately upon execution, DiffAgent renders the 4-card decision banner:
+Immediately below the query box, DiffAgent presents the direct, human-readable answer:
+- **Direct & Conversational**: Answers specific user questions directly (e.g., *"No need to carry an umbrella today..."* or *"The library is open from 8:00 AM to 10:00 PM on weekdays..."*).
+- **Structured**: Uses clean markdown headings, bullet points, and highlight badges.
+- **Grounded Citations**: Clearly references source documents (e.g., `*(Sources: campus_services.txt, library.txt)*`).
+
+---
+
+## 5. Live Tool Execution Result
+
+Directly below the synthesized answer, this section displays the raw and structured grounded data returned by the tool:
+
+### 🌤️ Weather Tool (Open-Meteo API)
+- Real-time weather icon, location name, country, and GPS coordinates.
+- Live metric cards: **Temperature (°C)**, **Feels Like (°C)**, **Condition**, **Humidity (%)**, and **Wind Speed (km/h)**.
+- Expandable **24-Hour Forecast Trend Sparkline** powered by Plotly.
+
+### 🧮 Calculator Tool (Safe Python AST)
+- Visual card showing the **Parsed Expression** (e.g., `(15 / 100) * 4500` or `3 * 7`) and the evaluated **Answer** (e.g., `675` or `21`).
+
+### 📚 Campus RAG Tool (Local Campus Knowledge Base)
+- Expandable passage cards showing retrieved document excerpts, source filenames (e.g. `library.txt`, `campus_services.txt`, `hostel.txt`, `academic.txt`), and cosine similarity scores.
+
+---
+
+## 6. Agent Decision & Early Gate Status
+
+Following the tool outputs, DiffAgent renders the 4-card decision banner:
 
 ```
 ┌─────────────────┬─────────────────┬─────────────────┬─────────────────┐
@@ -106,7 +132,7 @@ Immediately upon execution, DiffAgent renders the 4-card decision banner:
 
 ---
 
-## 5. Architectural Comparison (Baseline vs DiffAgent)
+## 7. Architectural Comparison (Baseline vs DiffAgent)
 
 A side-by-side comparative breakdown of performance metrics:
 
@@ -118,32 +144,6 @@ A side-by-side comparative breakdown of performance metrics:
    - Denoise latency saved = Total DiffAgent Latency (e.g., $295\text{ ms}$).
 3. **⚡ Efficiency Gain**:
    - Highlights percentage of diffusion steps saved ($+30\%$) and net latency reduction (e.g., $120\text{ ms Faster}$).
-
----
-
-## 6. Live Tool Execution Result
-
-Depending on the tool executed, this section displays rich grounded data:
-
-### 🌤️ Weather Tool (Open-Meteo API)
-- Real-time weather icon, location name, country, and GPS coordinates.
-- Live metric cards: **Temperature (°C)**, **Feels Like (°C)**, **Condition**, **Humidity (%)**, and **Wind Speed (km/h)**.
-- Expandable **24-Hour Forecast Trend Sparkline** powered by Plotly.
-
-### 🧮 Calculator Tool (Safe Python AST)
-- Visual card showing the **Parsed Expression** (e.g., `(15 / 100) * 4500` or `3 * 7`) and the evaluated **Answer** (e.g., `675` or `21`).
-
-### 📚 Campus RAG Tool (Local Campus Knowledge Base)
-- Expandable passage cards showing retrieved document excerpts, source filenames (e.g. `library.txt`, `campus_services.txt`, `hostel.txt`, `academic.txt`), and cosine similarity scores.
-
----
-
-## 7. Final Synthesized Response
-
-The bottom response box presents the grounded, human-readable answer formulated by DiffAgent:
-- **Direct & Conversational**: Answers specific user questions directly (e.g., *"Yes, please carry an umbrella! There is light rain today..."* or *"The library is open from 8:00 AM to 10:00 PM on weekdays..."*).
-- **Structured**: Uses clean markdown headings, bullet points, and highlight badges.
-- **Grounded Citations**: Clearly references source documents (e.g., `*(Source: library.txt)*` or `*(Sources: campus_services.txt, library.txt)*`).
 
 ---
 

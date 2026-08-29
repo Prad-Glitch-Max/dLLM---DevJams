@@ -558,114 +558,13 @@ if "gated" in st.session_state:
     tool_span = gated.get("tool_call_span", "")
 
     # --------------------------------------------------------
-    # 1. AGENT DECISION CARD
+    # 1. FINAL GROUNDED RESPONSE
     # --------------------------------------------------------
-    st.markdown("### 🤖 **Agent Decision & Early Gate Status**")
-    
-    dec_col1, dec_col2, dec_col3, dec_col4 = st.columns(4)
-    with dec_col1:
-        st.markdown(f"""
-        <div class="metric-card">
-            <span style="color: #94a3b8; font-size: 0.85rem;">AUTONOMOUS TOOL</span>
-            <div style="font-size: 1.4rem; font-weight: 700; color: #38bdf8; margin-top: 4px;">
-                {selected_tool.upper()}
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with dec_col2:
-        st.markdown(f"""
-        <div class="metric-card">
-            <span style="color: #94a3b8; font-size: 0.85rem;">TRIGGER STEP</span>
-            <div style="font-size: 1.4rem; font-weight: 700; color: {'#00e676' if early else '#f59e0b'}; margin-top: 4px;">
-                Step {execution_step} / {total_steps}
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with dec_col3:
-        st.markdown(f"""
-        <div class="metric-card">
-            <span style="color: #94a3b8; font-size: 0.85rem;">SPAN CONFIDENCE</span>
-            <div style="font-size: 1.4rem; font-weight: 700; color: #a855f7; margin-top: 4px;">
-                {conf:.1%}
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with dec_col4:
-        status_html = '<span class="badge-early">⚡ EARLY COMMITMENT</span>' if early else '<span class="badge-baseline">⏳ FULL DECODING</span>'
-        st.markdown(f"""
-        <div class="metric-card">
-            <span style="color: #94a3b8; font-size: 0.85rem;">GATE VERDICT</span>
-            <div style="margin-top: 6px;">
-                {status_html}
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    st.markdown(f"**Canonical Tool Call Span:** <span class='tool-chip'>{tool_span}</span>", unsafe_allow_html=True)
-
-    if early:
-        st.success(f"⚡ **Early Commitment Fired:** Tool arguments stabilized at Step {execution_step} (saving {total_steps - execution_step} diffusion steps). The agent executed the tool immediately without waiting for the complete response to denoise.")
-    else:
-        st.warning(f"⏳ **Full Denoising Completed:** Tool call arguments required all {total_steps} steps to reach confidence and stability thresholds.")
+    st.markdown("### 💬 **Final Synthesized Response**")
+    st.info(gated.get("response", "No response generated."))
 
     # --------------------------------------------------------
-    # 2. ARCHITECTURAL COMPARISON: BASELINE vs DIFFAGENT
-    # --------------------------------------------------------
-    st.divider()
-    st.markdown("### ⚔️ **Baseline dLLM vs DiffAgent**")
-
-    base_lat = baseline.get("total_latency", 0.0)
-    gated_lat = gated.get("total_latency", 0.0)
-    base_step = baseline.get("execution_step", total_steps)
-    gated_step = gated.get("execution_step", total_steps)
-
-    step_savings = ((base_step - gated_step) / base_step * 100) if base_step > 0 else 0
-    lat_savings = ((base_lat - gated_lat) / base_lat * 100) if base_lat > 0 else 0
-    time_saved_ms = max(0.0, (base_lat - gated_lat) * 1000)
-
-    comp_col1, comp_col2, comp_col3 = st.columns([1.5, 1.5, 1.2])
-
-    with comp_col1:
-        st.markdown(f"""
-        <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #475569; border-radius: 12px; padding: 18px;">
-            <h4 style="margin: 0 0 10px 0; color: #94a3b8;">🐢 Standard dLLM Baseline</h4>
-            <p style="margin: 4px 0; color: #cbd5e1;"><strong>Execution Step:</strong> Step {base_step} / {total_steps}</p>
-            <p style="margin: 4px 0; color: #cbd5e1;"><strong>Denoise Time:</strong> {baseline.get('denoise_latency', 0)*1000:.1f} ms</p>
-            <p style="margin: 4px 0; color: #cbd5e1;"><strong>Tool API Time:</strong> {baseline.get('tool_latency', 0)*1000:.1f} ms</p>
-            <hr style="border-color: #334155; margin: 10px 0;">
-            <p style="margin: 0; font-size: 1.1rem; font-weight: 700; color: #f8fafc;">Total Latency: {base_lat*1000:.1f} ms</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with comp_col2:
-        st.markdown(f"""
-        <div style="background: rgba(14, 116, 144, 0.2); border: 1px solid #06b6d4; border-radius: 12px; padding: 18px;">
-            <h4 style="margin: 0 0 10px 0; color: #38bdf8;">⚡ DiffAgent (Confidence-Gated)</h4>
-            <p style="margin: 4px 0; color: #cbd5e1;"><strong>Execution Step:</strong> Step {gated_step} / {total_steps} ⚡</p>
-            <p style="margin: 4px 0; color: #cbd5e1;"><strong>Denoise Time:</strong> {gated.get('denoise_latency', 0)*1000:.1f} ms</p>
-            <p style="margin: 4px 0; color: #cbd5e1;"><strong>Tool API Time:</strong> {gated.get('tool_latency', 0)*1000:.1f} ms</p>
-            <hr style="border-color: rgba(6, 182, 212, 0.4); margin: 10px 0;">
-            <p style="margin: 0; font-size: 1.1rem; font-weight: 700; color: #00f2fe;">Total Latency: {gated_lat*1000:.1f} ms</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with comp_col3:
-        st.markdown(f"""
-        <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; border-radius: 12px; padding: 18px; text-align: center;">
-            <span style="color: #6ee7b7; font-size: 0.85rem; font-weight: 600;">EFFICIENCY GAIN</span>
-            <div style="font-size: 2rem; font-weight: 800; color: #34d399; margin: 4px 0;">
-                +{step_savings:.0f}%
-            </div>
-            <p style="margin: 0; color: #a7f3d0; font-size: 0.9rem;">Denoising Steps Saved</p>
-            <p style="margin: 4px 0 0 0; color: #6ee7b7; font-size: 0.85rem;">⚡ {time_saved_ms:.0f} ms Faster</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # --------------------------------------------------------
-    # 3. LIVE TOOL EXECUTION RESULT
+    # 2. LIVE TOOL EXECUTION RESULT
     # --------------------------------------------------------
     st.divider()
     st.markdown("### 🔧 **Live Tool Execution Result**")
@@ -729,11 +628,112 @@ if "gated" in st.session_state:
         st.json(actual_data)
 
     # --------------------------------------------------------
-    # 4. FINAL GROUNDED RESPONSE
+    # 3. AGENT DECISION CARD & GATE STATUS
     # --------------------------------------------------------
     st.divider()
-    st.markdown("### 💬 **Final Synthesized Response**")
-    st.info(gated.get("response", "No response generated."))
+    st.markdown("### 🤖 **Agent Decision & Early Gate Status**")
+    
+    dec_col1, dec_col2, dec_col3, dec_col4 = st.columns(4)
+    with dec_col1:
+        st.markdown(f"""
+        <div class="metric-card">
+            <span style="color: #94a3b8; font-size: 0.85rem;">AUTONOMOUS TOOL</span>
+            <div style="font-size: 1.4rem; font-weight: 700; color: #38bdf8; margin-top: 4px;">
+                {selected_tool.upper()}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with dec_col2:
+        st.markdown(f"""
+        <div class="metric-card">
+            <span style="color: #94a3b8; font-size: 0.85rem;">TRIGGER STEP</span>
+            <div style="font-size: 1.4rem; font-weight: 700; color: {'#00e676' if early else '#f59e0b'}; margin-top: 4px;">
+                Step {execution_step} / {total_steps}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with dec_col3:
+        st.markdown(f"""
+        <div class="metric-card">
+            <span style="color: #94a3b8; font-size: 0.85rem;">SPAN CONFIDENCE</span>
+            <div style="font-size: 1.4rem; font-weight: 700; color: #a855f7; margin-top: 4px;">
+                {conf:.1%}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with dec_col4:
+        status_html = '<span class="badge-early">⚡ EARLY COMMITMENT</span>' if early else '<span class="badge-baseline">⏳ FULL DECODING</span>'
+        st.markdown(f"""
+        <div class="metric-card">
+            <span style="color: #94a3b8; font-size: 0.85rem;">GATE VERDICT</span>
+            <div style="margin-top: 6px;">
+                {status_html}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown(f"**Canonical Tool Call Span:** <span class='tool-chip'>{tool_span}</span>", unsafe_allow_html=True)
+
+    if early:
+        st.success(f"⚡ **Early Commitment Fired:** Tool arguments stabilized at Step {execution_step} (saving {total_steps - execution_step} diffusion steps). The agent executed the tool immediately without waiting for the complete response to denoise.")
+    else:
+        st.warning(f"⏳ **Full Denoising Completed:** Tool call arguments required all {total_steps} steps to reach confidence and stability thresholds.")
+
+    # --------------------------------------------------------
+    # 4. ARCHITECTURAL COMPARISON: BASELINE vs DIFFAGENT
+    # --------------------------------------------------------
+    st.divider()
+    st.markdown("### ⚔️ **Baseline dLLM vs DiffAgent**")
+
+    base_lat = baseline.get("total_latency", 0.0)
+    gated_lat = gated.get("total_latency", 0.0)
+    base_step = baseline.get("execution_step", total_steps)
+    gated_step = gated.get("execution_step", total_steps)
+
+    step_savings = ((base_step - gated_step) / base_step * 100) if base_step > 0 else 0
+    lat_savings = ((base_lat - gated_lat) / base_lat * 100) if base_lat > 0 else 0
+    time_saved_ms = max(0.0, (base_lat - gated_lat) * 1000)
+
+    comp_col1, comp_col2, comp_col3 = st.columns([1.5, 1.5, 1.2])
+
+    with comp_col1:
+        st.markdown(f"""
+        <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #475569; border-radius: 12px; padding: 18px;">
+            <h4 style="margin: 0 0 10px 0; color: #94a3b8;">🐢 Standard dLLM Baseline</h4>
+            <p style="margin: 4px 0; color: #cbd5e1;"><strong>Execution Step:</strong> Step {base_step} / {total_steps}</p>
+            <p style="margin: 4px 0; color: #cbd5e1;"><strong>Denoise Time:</strong> {baseline.get('denoise_latency', 0)*1000:.1f} ms</p>
+            <p style="margin: 4px 0; color: #cbd5e1;"><strong>Tool API Time:</strong> {baseline.get('tool_latency', 0)*1000:.1f} ms</p>
+            <hr style="border-color: #334155; margin: 10px 0;">
+            <p style="margin: 0; font-size: 1.1rem; font-weight: 700; color: #f8fafc;">Total Latency: {base_lat*1000:.1f} ms</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with comp_col2:
+        st.markdown(f"""
+        <div style="background: rgba(14, 116, 144, 0.2); border: 1px solid #06b6d4; border-radius: 12px; padding: 18px;">
+            <h4 style="margin: 0 0 10px 0; color: #38bdf8;">⚡ DiffAgent (Confidence-Gated)</h4>
+            <p style="margin: 4px 0; color: #cbd5e1;"><strong>Execution Step:</strong> Step {gated_step} / {total_steps} ⚡</p>
+            <p style="margin: 4px 0; color: #cbd5e1;"><strong>Denoise Time:</strong> {gated.get('denoise_latency', 0)*1000:.1f} ms</p>
+            <p style="margin: 4px 0; color: #cbd5e1;"><strong>Tool API Time:</strong> {gated.get('tool_latency', 0)*1000:.1f} ms</p>
+            <hr style="border-color: rgba(6, 182, 212, 0.4); margin: 10px 0;">
+            <p style="margin: 0; font-size: 1.1rem; font-weight: 700; color: #00f2fe;">Total Latency: {gated_lat*1000:.1f} ms</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with comp_col3:
+        st.markdown(f"""
+        <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; border-radius: 12px; padding: 18px; text-align: center;">
+            <span style="color: #6ee7b7; font-size: 0.85rem; font-weight: 600;">EFFICIENCY GAIN</span>
+            <div style="font-size: 2rem; font-weight: 800; color: #34d399; margin: 4px 0;">
+                +{step_savings:.0f}%
+            </div>
+            <p style="margin: 0; color: #a7f3d0; font-size: 0.9rem;">Denoising Steps Saved</p>
+            <p style="margin: 4px 0 0 0; color: #6ee7b7; font-size: 0.85rem;">⚡ {time_saved_ms:.0f} ms Faster</p>
+        </div>
+        """, unsafe_allow_html=True)
 
 
 # ============================================================
